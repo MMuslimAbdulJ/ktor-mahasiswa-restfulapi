@@ -16,7 +16,7 @@ class MahasiswaServiceImpl(private val mahasiswaRepository : MahasiswaRepository
     }
 
     override fun getMahasiswaByNim(nim: String): Mahasiswa? {
-        if(nim.length != 9 || !nim.matches(Regex("\\d+"))) throw ValidationException("Invalid NIM")
+        this.nimValidation(nim)
         return this.mahasiswaRepository.getMahasiswaByNim(nim)
     }
 
@@ -28,7 +28,7 @@ class MahasiswaServiceImpl(private val mahasiswaRepository : MahasiswaRepository
             createMahasiswaRequest.prodi,
         )
         if (properties.any { it.isBlank() }) throw ValidationException("Create Request is invalid")
-        if (createMahasiswaRequest.nim.length != 9 || !createMahasiswaRequest.nim.matches(Regex("\\d+"))) throw ValidationException("NIM is invalid")
+        this.nimValidation(createMahasiswaRequest.nim)
         val mahasiswa = Mahasiswa {
             nama = createMahasiswaRequest.nama
             nim = createMahasiswaRequest.nim
@@ -41,7 +41,7 @@ class MahasiswaServiceImpl(private val mahasiswaRepository : MahasiswaRepository
     }
 
     override fun updateMahasiswa(nim: String, updateMahasiswaRequest: UpdateMahasiswaRequest): Mahasiswa {
-        if(nim.length != 9 || !nim.matches(Regex("\\d+"))) throw ValidationException("NIM is invalid")
+        this.nimValidation(nim)
         val properties = arrayOf(
             updateMahasiswaRequest.nama,
             updateMahasiswaRequest.fakultas,
@@ -62,6 +62,11 @@ class MahasiswaServiceImpl(private val mahasiswaRepository : MahasiswaRepository
         if(nim.length != 9 || !nim.matches(Regex("\\d+"))) throw ValidationException("NIM is invalid")
         mahasiswaRepository.getMahasiswaByNim(nim) ?: throw NotFoundException("Delete is failed, because Mahasiswa data doesn't exists")
         return this.mahasiswaRepository.deleteMahasiswa(nim)
+    }
+
+    private fun nimValidation(nim : String) {
+        if(nim.length != 9 || !nim.matches(Regex("\\d+")))
+            throw ValidationException("NIM is invalid")
     }
 
 }
